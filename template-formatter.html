@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template Contours</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --paper: #eef1ee;
+    --panel: #ffffff;
+    --ink: #1c2422;
+    --ink-dim: #5b655f;
+    --ink-faint: #8b968f;
+    --line: #d6dbd4;
+    --accent: #2f6f6a;
+    --accent-ink: #eef7f5;
+    --accent-soft: #e2eeec;
+    --warn: #b8452f;
+    --warn-soft: #f6e6e2;
+
+    --d0: #3568a8;
+    --d1: #2f8f7d;
+    --d2: #6a9b3f;
+    --d3: #ab8a1f;
+    --d4: #c96f27;
+    --d5: #b8452f;
+    --d6: #8a4fa0;
+
+    --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-code: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #161c1a;
+      --panel: #1e2624;
+      --ink: #e7ede9;
+      --ink-dim: #93a39b;
+      --ink-faint: #616e68;
+      --line: #2c3532;
+      --accent: #6fc9bd;
+      --accent-ink: #0d1a17;
+      --accent-soft: rgba(111, 201, 189, 0.14);
+      --warn: #e0836a;
+      --warn-soft: rgba(224, 131, 106, 0.14);
+
+      --d0: #6fa8dc;
+      --d1: #5fc2ab;
+      --d2: #a3c968;
+      --d3: #e0c34f;
+      --d4: #e2965a;
+      --d5: #e0836a;
+      --d6: #c07fd9;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #161c1a;
+    --panel: #1e2624;
+    --ink: #e7ede9;
+    --ink-dim: #93a39b;
+    --ink-faint: #616e68;
+    --line: #2c3532;
+    --accent: #6fc9bd;
+    --accent-ink: #0d1a17;
+    --accent-soft: rgba(111, 201, 189, 0.14);
+    --warn: #e0836a;
+    --warn-soft: rgba(224, 131, 106, 0.14);
+
+    --d0: #6fa8dc;
+    --d1: #5fc2ab;
+    --d2: #a3c968;
+    --d3: #e0c34f;
+    --d4: #e2965a;
+    --d5: #e0836a;
+    --d6: #c07fd9;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    line-height: 1.45;
+    min-height: 100%;
+  }
+
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 16px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  header p {
+    margin: 0;
+    color: var(--ink-dim);
+    font-size: 0.9rem;
+    max-width: 46ch;
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+  }
+
+  .field label {
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  select, input[type="number"] {
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 5px 8px;
+  }
+
+  input[type="range"] {
+    accent-color: var(--accent);
+    width: 110px;
+  }
+
+  input[type="number"] { width: 4.5em; }
+
+  .toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle input { accent-color: var(--accent); }
+
+  .spacer { flex: 1; }
+
+  button {
+    font-family: var(--font-ui);
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  }
+
+  button:hover { border-color: var(--accent); color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+  button.primary:hover { opacity: 0.9; color: var(--accent-ink); border-color: var(--accent); }
+
+  .panes {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pane {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .pane.input-pane {
+    flex: none;
+    height: 160px;
+  }
+
+  .pane.output-pane {
+    flex: 1;
+    min-height: 480px;
+  }
+
+  .pane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  textarea {
+    flex: 1;
+    resize: none;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    padding: 14px 16px;
+    tab-size: 4;
+  }
+
+  textarea::placeholder { color: var(--ink-faint); }
+
+  .output-scroll {
+    flex: 1;
+    overflow: auto;
+  }
+
+  pre.output {
+    margin: 0;
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    white-space: pre;
+    min-height: 100%;
+  }
+
+  pre.output .br { font-weight: 600; }
+  .d0 { color: var(--d0); }
+  .d1 { color: var(--d1); }
+  .d2 { color: var(--d2); }
+  .d3 { color: var(--d3); }
+  .d4 { color: var(--d4); }
+  .d5 { color: var(--d5); }
+  .d6 { color: var(--d6); }
+  .comma { color: var(--ink-faint); }
+  .kw { color: var(--ink-dim); font-style: italic; }
+  .op { color: var(--ink-faint); }
+  .num { color: var(--accent); }
+
+  .empty-hint {
+    padding: 14px 16px;
+    color: var(--ink-faint);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+
+  .statusbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    padding: 2px 2px 0;
+  }
+
+  .statusbar strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+
+  .legend span.lbl { color: var(--ink-faint); margin-right: 2px; }
+
+  .swatch.d0 { background: var(--d0); }
+  .swatch.d1 { background: var(--d1); }
+  .swatch.d2 { background: var(--d2); }
+  .swatch.d3 { background: var(--d3); }
+  .swatch.d4 { background: var(--d4); }
+  .swatch.d5 { background: var(--d5); }
+  .swatch.d6 { background: var(--d6); }
+
+  .swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+
+  .warning {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--warn-soft);
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
+  .warning.show { display: flex; }
+
+  footer {
+    color: var(--ink-faint);
+    font-size: 0.76rem;
+    text-align: center;
+    padding-top: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Template <span>Contours</span></h1>
+      <p>Paste a nested C++ type. It comes back indented, with each level of &lt;&gt; nesting colored like elevation bands on a contour map.</p>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="field">
+      <label for="indentSize">Indent</label>
+      <select id="indentSize">
+        <option value="2">2 spaces</option>
+        <option value="4" selected>4 spaces</option>
+        <option value="8">Tab (8)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="maxWidth">Wrap width <strong id="maxWidthVal">64</strong></label>
+      <input type="range" id="maxWidth" min="20" max="140" value="64">
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="alwaysExpand">
+      Expand every level
+    </label>
+    <div class="spacer"></div>
+    <button id="exampleBtn">Load example</button>
+    <button id="copyBtn" class="primary">Copy result</button>
+  </div>
+
+  <div class="warning" id="warningBox">
+    <span>⚠</span>
+    <span>Some brackets didn't balance — this can happen with non-type template arguments (e.g. <code>enable_if&lt;(N&lt;10)&gt;</code>). The output below is a best-effort formatting.</span>
+  </div>
+
+  <div class="panes">
+    <div class="pane input-pane">
+      <div class="pane-head"><span>Input</span></div>
+      <textarea id="input" spellcheck="false" placeholder="std::map<std::string, std::vector<std::shared_ptr<Node<Payload, Allocator<Payload>>>>, std::less<std::string>, std::allocator<...>>"></textarea>
+    </div>
+    <div class="pane output-pane">
+      <div class="pane-head"><span>Formatted</span></div>
+      <div class="output-scroll">
+        <pre class="output" id="output"><span class="empty-hint">Formatted output will appear here.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span>Depth <strong id="statDepth">–</strong></span>
+    <span>Groups <strong id="statGroups">–</strong></span>
+    <span>Characters <strong id="statChars">–</strong></span>
+    <div class="legend" id="legend">
+      <span class="lbl">Depth</span>
+    </div>
+  </div>
+
+  <footer>Formatting happens entirely in your browser — nothing you paste is sent anywhere.</footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ---------- Parser ----------
+  function parseType(str) {
+    let i = 0;
+    let hadIssue = false;
+    const n = str.length;
+
+    function parseSeqUntil(stopSet) {
+      const parts = [];
+      let buf = '';
+      function flush() {
+        if (buf.length) { parts.push({ t: 'text', v: buf }); buf = ''; }
+      }
+      while (i < n) {
+        const c = str[i];
+        if (stopSet.has(c)) break;
+        if (c === '<' || c === '(' || c === '[') {
+          flush();
+          const open = c;
+          const close = c === '<' ? '>' : c === '(' ? ')' : ']';
+          i++;
+          const args = [];
+          while (i < n && /\s/.test(str[i])) i++;
+          if (i < n && str[i] === close) {
+            i++;
+          } else {
+            while (true) {
+              const argParts = parseSeqUntil(new Set([',', close]));
+              args.push(argParts);
+              if (i < n && str[i] === ',') {
+                i++;
+                while (i < n && /\s/.test(str[i])) i++;
+                continue;
+              } else if (i < n && str[i] === close) {
+                i++;
+                break;
+              } else {
+                hadIssue = true;
+                break;
+              }
+            }
+          }
+          parts.push({ t: 'group', open, close, args });
+          continue;
+        }
+        if (c === ')' || c === ']' || c === '>') {
+          hadIssue = true;
+          buf += c;
+          i++;
+          continue;
+        }
+        if (/\s/.test(c)) {
+          i++;
+          if (buf.length && !buf.endsWith(' ')) buf += ' ';
+          continue;
+        }
+        buf += c;
+        i++;
+      }
+      flush();
+      if (parts.length) {
+        const last = parts[parts.length - 1];
+        if (last.t === 'text') last.v = last.v.replace(/\s+$/, '');
+      }
+      return parts;
+    }
+
+    const top = parseSeqUntil(new Set());
+    return { parts: top, hadIssue };
+  }
+
+  function measureFlat(parts) {
+    let out = '';
+    for (const p of parts) {
+      if (p.t === 'text') out += p.v;
+      else out += p.open + p.args.map(measureFlat).join(', ') + p.close;
+    }
+    return out;
+  }
+
+  function maxDepthOf(parts, cur) {
+    cur = cur || 0;
+    let m = cur;
+    for (const p of parts) {
+      if (p.t === 'group') {
+        for (const a of p.args) m = Math.max(m, maxDepthOf(a, cur + 1));
+        if (p.args.length) m = Math.max(m, cur + 1);
+      }
+    }
+    return m;
+  }
+
+  function groupCount(parts) {
+    let c = 0;
+    for (const p of parts) {
+      if (p.t === 'group') {
+        c++;
+        for (const a of p.args) c += groupCount(a);
+      }
+    }
+    return c;
+  }
+
+  // ---------- Escaping + light syntax highlighting ----------
+  function esc(s) {
+    return s.replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  const KEYWORDS = /\b(const|struct|class|typename|unsigned|signed|volatile|static|constexpr|noexcept|mutable|inline|using|namespace|enum|template|virtual|friend|explicit)\b/g;
+
+  function highlight(escaped) {
+    let s = escaped;
+    s = s.replace(KEYWORDS, '<span class="kw">$1</span>');
+    s = s.replace(/::/g, '<span class="op">::</span>');
+    s = s.replace(/\b\d+\b/g, '<span class="num">$&</span>');
+    return s;
+  }
+
+  // ---------- Renderer (Wadler-style: flat if it fits, else break) ----------
+  function emitFlat(p, opts, sink, depth) {
+    const d = depth % 7;
+    sink.plain += p.open;
+    sink.html += '<span class="br d' + d + '">' + esc(p.open) + '</span>';
+    p.args.forEach(function (a, idx) {
+      for (const part of a) {
+        if (part.t === 'text') {
+          sink.plain += part.v;
+          sink.html += highlight(esc(part.v));
+        } else {
+          emitFlat(part, opts, sink, depth + 1);
+        }
+      }
+      if (idx < p.args.length - 1) {
+        sink.plain += ', ';
+        sink.html += '<span class="comma">,</span> ';
+      }
+    });
+    sink.plain += p.close;
+    sink.html += '<span class="br d' + d + '">' + esc(p.close) + '</span>';
+  }
+
+  function renderParts(parts, indent, col, opts, sink, depth) {
+    let curCol = col;
+    for (const p of parts) {
+      if (p.t === 'text') {
+        sink.plain += p.v;
+        sink.html += highlight(esc(p.v));
+        curCol += p.v.length;
+      } else {
+        const indentStr = ' '.repeat(indent * opts.indentSize);
+        const childIndentStr = ' '.repeat((indent + 1) * opts.indentSize);
+        const d = depth % 7;
+        if (p.args.length === 0) {
+          sink.plain += p.open + p.close;
+          sink.html += '<span class="br d' + d + '">' + esc(p.open) + esc(p.close) + '</span>';
+          curCol += p.open.length + p.close.length;
+          continue;
+        }
+        const flat = measureFlat([p]);
+        const fits = !opts.alwaysExpand && (curCol + flat.length <= opts.maxWidth);
+        if (fits) {
+          const flatSink = { plain: '', html: '' };
+          emitFlat(p, opts, flatSink, depth);
+          sink.plain += flatSink.plain;
+          sink.html += flatSink.html;
+          curCol += flat.length;
+        } else {
+          sink.plain += p.open + '\n';
+          sink.html += '<span class="br d' + d + '">' + esc(p.open) + '</span>\n';
+          for (let idx = 0; idx < p.args.length; idx++) {
+            sink.plain += childIndentStr;
+            sink.html += esc(childIndentStr);
+            renderParts(p.args[idx], indent + 1, childIndentStr.length, opts, sink, depth + 1);
+            const trailing = idx < p.args.length - 1 ? ',' : '';
+            sink.plain += trailing + '\n';
+            sink.html += (trailing ? '<span class="comma">,</span>' : '') + '\n';
+          }
+          sink.plain += indentStr + p.close;
+          sink.html += esc(indentStr) + '<span class="br d' + d + '">' + esc(p.close) + '</span>';
+          curCol = indentStr.length + p.close.length;
+        }
+      }
+    }
+    return curCol;
+  }
+
+  function format(input, opts) {
+    const parsed = parseType(input.trim());
+    const sink = { plain: '', html: '' };
+    renderParts(parsed.parts, 0, 0, opts, sink, 0);
+    return {
+      plain: sink.plain,
+      html: sink.html,
+      hadIssue: parsed.hadIssue,
+      maxDepth: maxDepthOf(parsed.parts),
+      groups: groupCount(parsed.parts),
+    };
+  }
+
+  // ---------- Wiring ----------
+  const $input = document.getElementById('input');
+  const $output = document.getElementById('output');
+  const $indentSize = document.getElementById('indentSize');
+  const $maxWidth = document.getElementById('maxWidth');
+  const $maxWidthVal = document.getElementById('maxWidthVal');
+  const $alwaysExpand = document.getElementById('alwaysExpand');
+  const $copyBtn = document.getElementById('copyBtn');
+  const $exampleBtn = document.getElementById('exampleBtn');
+  const $warningBox = document.getElementById('warningBox');
+  const $statDepth = document.getElementById('statDepth');
+  const $statGroups = document.getElementById('statGroups');
+  const $statChars = document.getElementById('statChars');
+  const $legend = document.getElementById('legend');
+
+  const DEPTH_LABELS = ['d0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6'];
+  DEPTH_LABELS.forEach(function (cls, idx) {
+    const sw = document.createElement('span');
+    sw.className = 'swatch ' + cls;
+    sw.title = 'nesting level ' + idx + ' (and every 7th level after)';
+    $legend.appendChild(sw);
+  });
+
+  let lastPlain = '';
+
+  function currentOpts() {
+    return {
+      indentSize: parseInt($indentSize.value, 10),
+      maxWidth: parseInt($maxWidth.value, 10),
+      alwaysExpand: $alwaysExpand.checked,
+    };
+  }
+
+  function renderNow() {
+    const raw = $input.value;
+    $maxWidthVal.textContent = $maxWidth.value;
+
+    if (!raw.trim()) {
+      $output.innerHTML = '<span class="empty-hint">Formatted output will appear here.</span>';
+      $warningBox.classList.remove('show');
+      $statDepth.textContent = '–';
+      $statGroups.textContent = '–';
+      $statChars.textContent = '–';
+      lastPlain = '';
+      return;
+    }
+
+    const result = format(raw, currentOpts());
+    lastPlain = result.plain;
+
+    $output.innerHTML = result.html;
+
+    $warningBox.classList.toggle('show', result.hadIssue);
+    $statDepth.textContent = result.maxDepth;
+    $statGroups.textContent = result.groups;
+    $statChars.textContent = result.plain.length;
+  }
+
+  let debounceTimer = null;
+  function scheduleRender() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(renderNow, 150);
+  }
+
+  $input.addEventListener('input', scheduleRender);
+  $indentSize.addEventListener('change', renderNow);
+  $maxWidth.addEventListener('input', renderNow);
+  $alwaysExpand.addEventListener('change', renderNow);
+
+  $copyBtn.addEventListener('click', function () {
+    if (!lastPlain) return;
+    navigator.clipboard.writeText(lastPlain).then(function () {
+      const old = $copyBtn.textContent;
+      $copyBtn.textContent = 'Copied!';
+      setTimeout(function () { $copyBtn.textContent = old; }, 1200);
+    }).catch(function () {
+      const old = $copyBtn.textContent;
+      $copyBtn.textContent = 'Copy failed';
+      setTimeout(function () { $copyBtn.textContent = old; }, 1200);
+    });
+  });
+
+  const EXAMPLE = 'std::map<std::string, std::vector<std::shared_ptr<Node<Payload, Allocator<Payload>>>>, std::less<std::string>, std::allocator<std::pair<const std::string, std::vector<std::shared_ptr<Node<Payload, Allocator<Payload>>>>>>>';
+
+  $exampleBtn.addEventListener('click', function () {
+    $input.value = EXAMPLE;
+    renderNow();
+  });
+
+  renderNow();
+})();
+</script>
+</body>
+</html>
